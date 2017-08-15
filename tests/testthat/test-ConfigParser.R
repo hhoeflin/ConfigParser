@@ -2,7 +2,7 @@ context("ConfigParser")
 
 test_that("Reading options", {
     ## create a configparser with all environment variables
-    Sys.setenv(user="ConfigParser")
+    Sys.setenv(USER="ConfigParser")
     config <- ConfigParser$new(Sys.getenv())
     config$read(system.file("test.INI", package="ConfigParser"))
 
