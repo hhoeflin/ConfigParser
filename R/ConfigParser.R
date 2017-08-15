@@ -1,62 +1,6 @@
 library(ini)
 library(R6)
 
-################################
-##
-## Custom error handling taken
-## from Hadley's website
-##
-################################
-condition <- function(subclass, message, call = sys.call(-1), ...) {
-  structure(
-    class = c(subclass, "condition"),
-    list(message = message, call = call),
-    ...
-  )
-}
-is.condition <- function(x) inherits(x, "condition")
-
-custom_stop <- function(subclass, message, call = sys.call(-1), 
-                        ...) {
-  c <- condition(c(subclass, "error"), message, call = call, ...)
-  stop(c)
-}
-
-##############################
-##
-## Helper Function for the
-## ConfigParser
-##
-##############################
-
-##' Search for option's for interpolation
-##'
-##' Searches the string for occurences of %(...)s that needs interpolation
-##' and return the unchanged value of ... as the option;
-##'
-##' This can then later be used with \code{do_replacement} and a value
-##' to perform the actual replacement.
-##' @title Search for option's for interpolation
-##' @param value The value to search for possibly required interpolation
-##' @return A string representing the option of NULL
-##' @author Holger Hoefling
-##' @optionwords internal
-interpolation_option <- function(value) {
-    optionREGEXP <- "^.*%\\(([^\\)]+)\\)s.*$"
-    option <- character(0)
-    if(grepl(optionREGEXP, value, perl=TRUE)) {
-        option <- gsub(optionREGEXP, "\\1", value)
-    }
-    return(option)
-}
-
-##' @rdname interpolation_option
-do_replacement <- function(input, option, replacement) {
-    replace_str <- paste0("%(", option, ")s")
-    return(gsub(pattern=replace_str, replacement=replacement, x=input, fixed=TRUE))
-}
-
-
 
 ##############################
 ##
@@ -72,6 +16,7 @@ do_replacement <- function(input, option, replacement) {
 ##' explanation of method \code{get}.
 ##' @importFrom ini read.ini
 ##' @import R6
+##' @export
 ConfigParser <- R6Class(
     classname="configParser",
     public=list(
@@ -83,7 +28,7 @@ ConfigParser <- R6Class(
             "@param init A named character vector, named list or an environment of variables to pre-set (the will be"
             "put into the \\code{DEFAULT} section)"
 
-            if(!is.null(envir)) {
+            if(!is.null(init)) {
                 if(is.environment(init)) {
                     init <- as.list(init)
                 }
@@ -96,7 +41,7 @@ ConfigParser <- R6Class(
                         stop("All elements of init need to be named")
                     }
                     names(init) <- self$optionxform(names(init))
-                    self$data[[self$optionsxform("DEFAULT")]] <- init
+                    self$data[[self$optionxform("DEFAULT")]] <- init
                 }
                 else {
                     stop("init has to be a list or an environment")
@@ -252,9 +197,9 @@ ConfigParser <- R6Class(
             "not exist yet"
             "@return Return of the adjusted \\code{ConfigParser} object itself" 
 
-            option <- as.character(option)
+            option <- self$optionxform(as.character(option))
             values <- as.character(value)
-            section <- as.character(value)
+            section <- as.character(section)
 
             if(length(section) != 1) {
                 stop("section needs to be of length 1")
@@ -267,11 +212,17 @@ ConfigParser <- R6Class(
                     stop("Section ", section, " does not exist")
                 }
                 else {
-                    self$data[[section]] <- list()
+                    self$data[[self$optionxform(section)]] <- list()
                 }
             }
 
-            return(self)
+            ## write the data into the list
+            new_list <- setNames(as.list(value), nm=option)
+            new_list <- c(new_list, self$data[[self$optionxform(section)]])
+            new_list[unique(names(new_list))]
+            self$data[[self$optionxform(section)]] <- new_list
+            
+            return(invisible(self))
         },
         data=list(),
         optionxform=tolower
