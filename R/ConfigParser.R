@@ -20,14 +20,17 @@ library(R6)
 ConfigParser <- R6Class(
     classname="configParser",
     public=list(
-        initialize=function(init=NULL) {
+        initialize=function(init=NULL, optionxform=tolower) {
             " Initializes the object"
             ""
             "Initializes the object, optionally with pre-set variables given"
             "as a list or an environment"
             "@param init A named character vector, named list or an environment of variables to pre-set (the will be"
             "put into the \\code{DEFAULT} section)"
+            "@param optionxform Function through which all option and section names are funneled. By default \\code{tolower}"
+            "to make all names lowercase. To switch off, pass in \\code{identity}"
 
+            self$optionxform <- optionxform
             if(!is.null(init)) {
                 if(is.environment(init)) {
                     init <- as.list(init)
@@ -111,15 +114,13 @@ ConfigParser <- R6Class(
             
             # get section name and default section name
             section <- c(section, "DEFAULT")
-            section <- self$optionxform(section)
+            section <- unique(self$optionxform(section))
 
-            section <- unique(c(section, default_section))
             ## search through all the section until the right one is found
             optionFound <- FALSE
             section_found <- NULL
             for(i in seq_along(section)) {
-                
-                single_section <- self$data[[i]]
+                single_section <- self$data[[section[i]]]
 
                 value <- single_section[[option]]
                 if(!is.null(value)) {
@@ -140,11 +141,23 @@ ConfigParser <- R6Class(
             ## now that we have the option, we have to look into the
             ## possible necessary interpolation
             if(interpolate) {
-                while(length(ioption <- interpolation_option(value)) > 0) {
+                while(length(ioption <- self$optionxform(interpolation_option(value))) > 0) {
                     ## need to get the value of the option
                     ## ensure you look in the current section first
-                    tryCatch({option_value <- self.get(option=ioption, section=sections_remain, interpolate=TRUE)},
-                             NoOptionError=stop("The option ", ioption, " needed for interpolation could not be found"))
+                    if(ioption == option) {
+                        ## can't look in the current section for yourself
+                        if(length(sections_remain) == 1) {
+                            stop("Recursion of option '", option, "' in section '", sections_remain, "'")
+                        }
+                        option_value <- self$get(option=ioption, fallback=NA, section=sections_remain[-1], interpolate=TRUE)
+                    }
+                    else {
+                        option_value <- self$get(option=ioption, fallback=NA, section=sections_remain, interpolate=TRUE)
+                    }
+                    ## if NA is being returned, the option was not found
+                    if(is.na(option_value)) {
+                        stop("The option '", ioption, "' needed for interpolation could not be found")
+                    }
                     value <- do_replacement(value, option=ioption, replacement = option_value)
                 }
             }
@@ -225,7 +238,7 @@ ConfigParser <- R6Class(
             return(invisible(self))
         },
         data=list(),
-        optionxform=tolower
+        optionxform=NULL
     )
 )
 
