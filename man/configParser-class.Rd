@@ -23,8 +23,8 @@ as a list or an environment
 
 \strong{Parameters:}
 \describe{
-\item{init}{A list or an environment of variables to pre-set (the will be
-put into the \code{DEFAULT} section}
+\item{init}{A named character vector, named list or an environment of variables to pre-set (the will be
+put into the \code{DEFAULT} section)}
 }}
 
 \item{\code{read(filepath, encoding = getOption("encoding"))}}{
@@ -35,8 +35,6 @@ Reads the INI given into the object. It will be added to the
 internal storage of the object. If applying these functions
 several times, later definitions overwrite those that
 were read earlier.
-
-
 
 \strong{Parameters:}
 \describe{
@@ -73,19 +71,19 @@ The ConfigParser object itself
 
 }
 
-\item{\code{get(key, fallback, section = "default", interpolate = TRUE)}}{
+\item{\code{get(option, fallback, section = "default", interpolate = TRUE)}}{
 
-Get the value of a key
+Get the value of a option
 
 
 
 \strong{Parameters:}
 \describe{
-\item{key}{The key for which to get the value}
-\item{fallback}{The fallback value to return if there is no value for the key. If missing,
-an error will be thrown if the key has no value.}
-\item{section}{The section (or several) from which to read the key. It will try to read the
-key in the given section from first to last, with \code{DEFAULT} always being the
+\item{option}{The option for which to get the value}
+\item{fallback}{The fallback value to return if there is no value for the option. If missing,
+an error will be thrown if the option has no value.}
+\item{section}{The section (or several) from which to read the option. It will try to read the
+option in the given section from first to last, with \code{DEFAULT} always being the
 last}
 \item{interpolate}{Should the values be interpolated. This will try to replace variables of
 the form \code{\%(...)s}}
@@ -93,17 +91,40 @@ the form \code{\%(...)s}}
 
 \strong{Return:}
 
-The value of the key
+The value of the option
 
 
 }
 
-\item{\code{getboolean(key, fallback, section = "default", interpolate = TRUE)}}{
+\item{\code{getboolean(option, fallback, section = "default", interpolate = TRUE)}}{
 
 Same as \code{get}, but results coerced to a logical.}
 
-\item{\code{getfloat(key, fallback, section = "default", interpolate = TRUE)}}{
+\item{\code{getfloat(option, fallback, section = "default", interpolate = TRUE)}}{
 
 Same as \code{get}, but the result coerced to a float.}
+
+\item{\code{set(option, value, section, error_on_new_section = TRUE)}}{
+
+Set option to a value in a section
+
+Sets an option to the given value (which can include variables for
+interpolation) in the given section.
+
+\strong{Parameters:}
+\describe{
+\item{option}{Name of the option to set (can be a character vector)}
+\item{value}{Value of the option (same length as \code{option})}
+\item{section}{Character vector of length 1}
+\item{error_on_new_section}{Should an error be raised if the section does
+not exist yet}
+}
+
+\strong{Return:}
+
+Return of the adjusted \code{ConfigParser} object itself
+
+
+}
 }}
 
