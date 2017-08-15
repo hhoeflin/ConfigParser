@@ -6,7 +6,7 @@ Description: Enhances the 'ini' package by adding the ability to interpolate var
 	     The INI configuration file is read into an R6 ConfigParser object (loosely inspired by Pythons ConfigParser module)
 	     and the keys can be read, where '%(....)s' instances are interpolated by other included options or outside variables.
 Depends:
-    R (>= 3.4.1),
+    R (>= 3.0.0),
     ini,
     R6
 License: GPL-3
