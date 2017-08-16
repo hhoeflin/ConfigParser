@@ -1,21 +1,29 @@
-This is a patch release to fix a major bug that affects a small percentage of users
+This is the initial submission of the package
 
 ---
 
 ## Test environments
-* local OS X install, R 3.2.3
-* ubuntu 12.04 (on travis-ci), R 3.2.3
-* win-builder (devel and release)
+* Ubuntu Xenial 16.04 running on Windows Subsystem for Linux R-3.4.1
+* travis-ci
+* appveyor
 
 ## R CMD check results
-There were no ERRORs, WARNINGs or NOTEs.
+
+There was 1 NOTE and 1 WARNING. The WARNING seems to be an issue related to a pandoc/tls bug regarding fetching a badge for codecoverage. 
+It does not occur on either travis or appveyor and github shows all badges in the README.md correctly. Please see the output below.
+
+R CMD check results
+0 errors | 1 warning  | 1 note 
+checking top-level files ... WARNING
+Conversion of ‘README.md’ failed:
+pandoc: Could not fetch https://img.shields.io/codecov/c/github/hhoeflin/ConfigParser/master.svg
+TlsExceptionHostPort (HandshakeFailed Error_EOF) "img.shields.io" 443
+
+checking CRAN incoming feasibility ... NOTE
+Maintainer: ‘Holger Hoefling <hhoeflin@gmail.com>’
+
+New submission
 
 ## Downstream dependencies
 
-I have run R CMD check on all 7 reverse dependencies of roxygen2 
-I did not check packages that only suggest roxygen2, as it's generally a 
-build-time, rather a run-time dependency.
-
-Results summary at https://github.com/klutometis/roxygen/tree/master/revdep
-
-I failed to install redland, but otherwise there were no new problems.
+No downstream dependencies

@@ -1,6 +1,6 @@
 Package: ConfigParser
 Title: Package to Parse an INI File, Including Variable Interpolation
-Version: 0.0.0.9000
+Version: 1.0.0
 Authors@R: person("Holger", "Hoefling", email = "hhoeflin@gmail.com", role = c("aut", "cre"))
 Description: Enhances the 'ini' package by adding the ability to interpolate variables.
 	     The INI configuration file is read into an R6 ConfigParser object (loosely inspired by Pythons ConfigParser module)
