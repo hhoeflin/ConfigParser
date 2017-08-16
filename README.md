@@ -22,7 +22,7 @@ config$getboolean("a_bool", NA, "Section 1")
 config$getfloat("a_float", NA, "Section 1")
 ```
 
-In it also easy to pre-seed a config file with e.g. all environment variables, 
+It is also easy to pre-seed a config file with e.g. all environment variables, 
 this time setting the **optionxform**  to **identity** to prevent the default lower-casing of all options and then read an INI file from disk.
 ```R
 config <- ConfigParser$new(Sys.getenv(), optionxform=identity)
